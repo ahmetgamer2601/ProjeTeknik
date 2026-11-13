@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="tr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATÖLYE — Dijital Tasarım & Mimari Rehberi (Sayı 01 / 2026)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Editoryal, Teknik ve Avangart Google Fonts Koleksiyonu -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        archival: '#F5F3EE',
+                        stone: '#EAE6DD',
+                        ink: '#161616',
+                        inkSoft: '#4A4843',
+                        hairline: '#DCD7CD',
+                        vermilion: '#C84B31',
+                        forest: '#2D4739',
+                    },
+                    fontFamily: {
+                        editorial: ['Instrument Serif', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        syne: ['Syne', 'sans-serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                        fraunces: ['Fraunces', 'serif'],
+                        dm: ['DM Sans', 'sans-serif'],
+                        spacemono: ['Space Mono', 'monospace'],
+                        ibm: ['IBM Plex Sans', 'sans-serif'],
+                        cormorant: ['Cormorant Garamond', 'serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --noise-opacity: 0.045;
+        }
+
+        body {
+            background-color: #F5F3EE;
+            color: #161616;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Mimari Çizim Kâğıdı & Kum Dokusu */
+        .paper-grain {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 60;
+            opacity: var(--noise-opacity);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)'/%3E%3C/svg%3E");
+        }
+
+        /* İnce Mimari Sınır Çizgileri */
+        .border-arch {
+            border-color: #DCD7CD;
+        }
+
+        /* Özel Kaydırma Çubuğu */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #EAE6DD;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #161616;
+        }
+
+        /* Aktif Navigasyon Öğesi */
+        .toc-link.active {
+            background-color: #161616;
+            color: #F5F3EE;
+        }
+
+        /* Laboratuvar Etkileşimleri */
+        .btn-sweep {
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-sweep::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-color: #C84B31;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.35s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: -1;
+        }
+        .btn-sweep:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .brutal-btn {
+            box-shadow: 4px 4px 0px #161616;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .brutal-btn:hover {
+            transform: translate(-1px, -1px);
+            box-shadow: 5px 5px 0px #161616;
+        }
+        .brutal-btn:active {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px #161616;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-vermilion selection:text-archival">
+
+    <!-- Dinamik Kağıt Dokusu Katmanı -->
+    <div class="paper-grain" id="grain-layer"></div>
+
+    <!-- Anlık Bildirim (Toast) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-ink text-archival px-5 py-3.5 border border-ink shadow-xl flex items-center gap-3 font-mono text-xs">
+            <span class="inline-block w-2 h-2 bg-vermilion"></span>
+            <span id="toast-text">Panoya Kopyalandı</span>
+        </div>
+    </div>
+
+    <!-- ÜST EDİTORYAL KÜNYE (MASTHEAD) -->
+    <header class="border-b border-arch bg-archival">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-8 py-3 border-b border-arch flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider text-inkSoft">
+            <div class="flex items-center gap-4">
+                <span class="text-ink font-semibold">ATÖLYE YAYINLARI</span>
+                <span class="hidden sm:inline">/</span>
+                <span>SAYI 01 — 2026</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span>ARAYÜZ MİMARİSİ & VİBECODİNG KILAVUZU</span>
+                <span class="hidden md:inline text-vermilion font-semibold">● AÇIK KAYNAK REHBER</span>
+            </div>
+        </div>
+
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-8 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            <div class="lg:col-span-8">
+                <p class="font-mono text-xs uppercase tracking-[0.2em] text-vermilion mb-4">
+                    SANAT YÖNETMENLİĞİ & FRONTEND STANDARTLARI
+                </p>
+                <h1 class="font-editorial text-5xl sm:text-7xl lg:text-[84px] leading-[0.95] tracking-tight text-ink">
+                    Yapay zeka izlerini silen <span class="italic text-vermilion">usta işi</span> web arayüzleri kurgulama rehberi.
+                </h1>
+            </div>
+            <div class="lg:col-span-4 lg:border-l border-arch lg:pl-8 flex flex-col justify-between space-y-6">
+                <p class="text-sm sm:text-base text-inkSoft leading-relaxed">
+                    Vibecoding yaparken yapay zekanın birbirinin kopyası mor-lacivert şablonlarına, standart 3'lü kutularına ve ruhsuz tipografisine teslim olma. Projeye başlamadan önce bu saha kılavuzunu aç; kuralları, renk kodlarını ve mimari promptları doğrudan kullan.
+                </p>
+                <div class="flex flex-wrap gap-3">
+                    <a href="#prompt-studyosu" class="px-5 py-3 bg-ink text-archival font-mono text-xs uppercase tracking-wider hover:bg-vermilion transition-colors">
+                        Canlı Prompt Oluşturucu →
+                    </a>
+                    <a href="#arketipler" class="px-5 py-3 border border-ink text-ink font-mono text-xs uppercase tracking-wider hover:bg-stone transition-colors">
+                        6 Arketipi İncele
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- YAPIŞKAN (STICKY) İNDEKS ÇUBUĞU -->
+    <nav class="sticky top-0 z-40 bg-archival/95 backdrop-blur-sm border-b border-arch">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between overflow-x-auto no-scrollbar py-2.5 gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0" id="toc-nav">
+                <a href="#teshis" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-inkSoft hover:text-ink transition-colors">01. Teşhis</a>
+                <a href="#arketipler" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-inkSoft hover:text-ink transition-colors">02. Arketipler</a>
+                <a href="#tipografi" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-inkSoft hover:text-ink transition-colors">03. Tipografi</a>
+                <a href="#renkler" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-inkSoft hover:text-ink transition-colors">04. Renk Paletleri</a>
+                <a href="#yerlesim" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-inkSoft hover:text-ink transition-colors">05. Grid Mimarisi</a>
+                <a href="#laboratuvar" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-inkSoft hover:text-ink transition-colors">06. Mikro-Laboratuvar</a>
+                <a href="#prompt-studyosu" class="toc-link px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-vermilion font-semibold hover:bg-stone transition-colors">07. Prompt Stüdyosu</a>
+            </div>
+            <button onclick="copyText(window.location.href, 'Sayfa bağlantısı kopyalandı')" class="hidden md:inline-flex shrink-0 px-3 py-1.5 border border-arch font-mono text-[11px] text-inkSoft hover:border-ink hover:text-ink transition-colors">
+                [Paylaş / Linki Kopyala]
+            </button>
+        </div>
+    </nav>
+
+    <!-- ANA İÇERİK ALANI -->
+    <main class="max-w-[1440px] mx-auto px-4 sm:px-8 divide-y divide-[#DCD7CD]">
+
+        <!-- BÖLÜM 01: TEŞHİS & TEDAVİ -->
+        <section id="teshis" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-4">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 01 / TEŞHİS</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">Yapay zeka imzası nasıl silinir?</h2>
+                </div>
+                <div class="lg:col-span-8 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        Deneyimli bir yazılımcı veya tasarımcı bir siteye baktığında 3 saniye içinde onun varsayılan AI çıktısı olduğunu anlar. Aşağıdaki matris, yapay zekanın ezberlediği alışkanlıkları ve yerine koyman gereken mimari kararları gösterir.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Mimari Karşılaştırma Tablosu -->
+            <div class="border border-ink bg-archival overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[720px]">
+                    <thead>
+                        <tr class="border-b border-ink bg-stone font-mono text-xs uppercase tracking-wider">
+                            <th class="p-4 border-r border-arch w-1/5">Katman</th>
+                            <th class="p-4 border-r border-arch w-2/5 text-vermilion">Tipik AI Çıktısı (Kaçınılacak)</th>
+                            <th class="p-4 w-2/5 text-forest">Usta Arayüz Yaklaşımı (Hedef)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#DCD7CD] text-sm">
+                        <tr>
+                            <td class="p-4 border-r border-arch font-mono text-xs font-semibold">TİPOGRAFİ</td>
+                            <td class="p-4 border-r border-arch text-inkSoft">Başlık ve metinde aynı düz <code>Inter</code> fontu. Sıkışık olmayan gevşek satır aralıkları, hiyerarşi eksikliği.</td>
+                            <td class="p-4 text-ink font-medium">Zıt karakterli ikililer: Dramatik bir <code>Serif</code> başlık + geometrik <code>Sans-Serif</code> gövde + <code>Mono</code> teknik etiketler.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 border-r border-arch font-mono text-xs font-semibold">RENK & IŞIK</td>
+                            <td class="p-4 border-r border-arch text-inkSoft">Koyu lacivert (<code>#0F172A</code>) zemin üzerine mor-mavi neon geçişler (gradient) ve parlayan gölgeler.</td>
+                            <td class="p-4 text-ink font-medium">Sıcak arşiv kâğıdı (<code>#F5F3EE</code>) veya gerçek karbon siyahı (<code>#0B0B0C</code>) üzerine tek bir keskin vurgu rengi.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 border-r border-arch font-mono text-xs font-semibold">YERLEŞİM (GRID)</td>
+                            <td class="p-4 border-r border-arch text-inkSoft">Her bölümde ortalanmış başlık ve altında birbirinin aynısı 3 adet yuvarlatılmış özellik kutusu.</td>
+                            <td class="p-4 text-ink font-medium">Asimetrik 12 kolonlu Bento ızgaraları, sola yaslı editoryal mizanpaj ve sabit (sticky) sol sütunlu akışlar.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 border-r border-arch font-mono text-xs font-semibold">YÜZEY & SINIR</td>
+                            <td class="p-4 border-r border-arch text-inkSoft">Her kartta bulanık <code>backdrop-blur</code> cam efekti ve kalın gri gölgeler (<code>shadow-2xl</code>).</td>
+                            <td class="p-4 text-ink font-medium">1px saç teli kalınlığında mimari sınır çizgileri (hairline borders) ve %4 opaklıkta kâğıt/kum dokusu.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 border-r border-arch font-mono text-xs font-semibold">MİKRO-METİN</td>
+                            <td class="p-4 border-r border-arch text-inkSoft">Sahte istatistikler ("10.000+ Mutlu Müşteri"), klişe sloganlar ("Geleceği Keşfet") ve madde başı emojileri.</td>
+                            <td class="p-4 text-ink font-medium">Somut, ölçülebilir ve teknik açıdan inandırıcı ürün metinleri; emoji yerine özel çizim vektör ikonlar.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- BÖLÜM 02: 6 FARKLI TASARIM ARKETİPİ -->
+        <section id="arketipler" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-5">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 02 / ESTETİK DİL</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">6 Farklı Tasarım Arketipi</h2>
+                </div>
+                <div class="lg:col-span-7 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        Yapay zekaya "şık bir site yap" demek yerine ona doğrudan aşağıdaki 6 mimari disiplinden birinin adını ver. Her kartın içinde o stilin canlı CSS önizlemesi ve tek tıkla kopyalanabilir teknik promptu bulunur.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                <!-- ARKETİP 1: EDITORIAL / DERGİ -->
+                <article class="border border-ink bg-white flex flex-col justify-between">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-arch pb-3 mb-5 font-mono text-xs">
+                            <span class="font-semibold text-vermilion">01 / EDITORIAL & DERGİ</span>
+                            <span class="text-inkSoft">Kinfolk • NYT • Mimari</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Editoryal Yayın Mizanpajı</h3>
+                        <p class="text-xs text-inkSoft mb-6 leading-relaxed">
+                            Tırnaklı (Serif) büyük başlıklar, sıcak kâğıt tonları, ince ayırıcı çizgiler ve bol negatif boşluk. Prestij, güven ve derinlik hissi verir.
+                        </p>
+
+                        <!-- Canlı Mini Önizleme -->
+                        <div class="border border-[#DCD7CD] bg-[#FAF8F3] p-6 text-[#161616]">
+                            <div class="flex justify-between font-mono text-[10px] uppercase tracking-widest border-b border-[#161616]/15 pb-2.5 mb-4">
+                                <span>STÜDYO MONOLİT</span>
+                                <span>İSTANBUL — 2026</span>
+                            </div>
+                            <h4 class="font-editorial text-3xl leading-[1.05] mb-3">
+                                Işığın ve ham taşın <span class="italic">zamansız</span> dengesi.
+                            </h4>
+                            <p class="text-xs text-[#4A4843] leading-relaxed mb-5">
+                                Gereksiz süslemelerden arındırılmış, insan ölçeğine saygılı çağdaş yaşam mekânları tasarlıyoruz.
+                            </p>
+                            <div class="flex items-center justify-between pt-3 border-t border-[#161616]/10 text-xs">
+                                <span class="font-mono underline underline-offset-4">Projeleri İncele →</span>
+                                <span class="px-3 py-1 bg-[#161616] text-[#FAF8F3] font-mono text-[10px]">RANDEVU</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Aesthetic Direction: High-end Editorial Magazine style (Kinfolk / NYT inspired). Use warm archival paper background (#FAF8F3), deep charcoal ink (#161616), and 1px hairline borders. Pair large italic Serif display headings (Instrument Serif or Playfair Display) with clean geometric Sans-Serif body copy. Generous whitespace, asymmetric layout, zero drop shadows or gradients.', 'Editorial stil promptu kopyalandı')" class="w-full py-3.5 px-6 bg-stone hover:bg-ink hover:text-archival border-t border-ink font-mono text-xs uppercase tracking-wider transition-colors text-left flex justify-between items-center">
+                        <span>Bu Stilin Promptunu Kopyala</span>
+                        <span>[KOPYALA +]</span>
+                    </button>
+                </article>
+
+                <!-- ARKETİP 2: NEO-BRUTALIST -->
+                <article class="border border-ink bg-white flex flex-col justify-between">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-arch pb-3 mb-5 font-mono text-xs">
+                            <span class="font-semibold text-vermilion">02 / NEO-BRUTALIST</span>
+                            <span class="text-inkSoft">Gumroad • Figma • Yaratıcı Araçlar</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Modern Sert Brütalizm</h3>
+                        <p class="text-xs text-inkSoft mb-6 leading-relaxed">
+                            2px-3px keskin siyah çerçeveler, bulanık olmayan sert kaydırmalı gölgeler (<code>4px 4px 0px</code>) ve yüksek kontrastlı vurgular. Enerjik ve akılda kalıcıdır.
+                        </p>
+
+                        <!-- Canlı Mini Önizleme -->
+                        <div class="border-2 border-[#161616] bg-[#FFFDF5] p-6 text-[#161616] shadow-[4px_4px_0px_#161616]">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="px-2.5 py-0.5 bg-[#F4D03F] border-2 border-[#161616] font-mono text-[10px] font-bold">SÜRÜM 4.2</span>
+                                <span class="font-mono text-xs font-bold">0ms GECİKME</span>
+                            </div>
+                            <h4 class="font-space text-2xl font-bold uppercase tracking-tight leading-none mb-3">
+                                FİKİRLERİNİ SANİYELER İÇİNDE ÜRÜNE ÇEVİR.
+                            </h4>
+                            <p class="text-xs font-medium text-[#161616]/80 mb-5">
+                                Karmaşık kurulumlar yok. Doğrudan tarayıcıda çalışan yüksek hızlı tasarım motoru.
+                            </p>
+                            <button class="brutal-btn px-4 py-2 bg-[#E05A47] text-[#161616] border-2 border-[#161616] font-mono text-xs font-bold uppercase">
+                                HEMEN DENE →
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Aesthetic Direction: Modern Neo-Brutalist design (Gumroad inspired). Use warm cream background (#FFFDF5) with crisp 2px solid black borders (#161616) and hard offset shadows (4px 4px 0px #161616). Use bold Space Grotesk uppercase headings, JetBrains Mono badges, and punchy sulfur yellow (#F4D03F) or coral (#E05A47) accents. Zero blur, zero soft gradients.', 'Neo-Brutalist promptu kopyalandı')" class="w-full py-3.5 px-6 bg-stone hover:bg-ink hover:text-archival border-t border-ink font-mono text-xs uppercase tracking-wider transition-colors text-left flex justify-between items-center">
+                        <span>Bu Stilin Promptunu Kopyala</span>
+                        <span>[KOPYALA +]</span>
+                    </button>
+                </article>
+
+                <!-- ARKETİP 3: SWISS GRID / TEKNİK -->
+                <article class="border border-ink bg-white flex flex-col justify-between">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-arch pb-3 mb-5 font-mono text-xs">
+                            <span class="font-semibold text-vermilion">03 / SWISS GRID & TEKNİK</span>
+                            <span class="text-inkSoft">Linear • Dieter Rams • Fintech</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">İsviçre Tipografik Izgara</h3>
+                        <p class="text-xs text-inkSoft mb-6 leading-relaxed">
+                            Görünür 1px yapısal ızgara bölmeleri, matematiksel hizalama, sıfır dekoratif illüstrasyon ve tek bir fonksiyonel vurgu rengi.
+                        </p>
+
+                        <!-- Canlı Mini Önizleme -->
+                        <div class="border border-[#161616] bg-white text-[#161616]">
+                            <div class="grid grid-cols-3 border-b border-[#161616] font-mono text-[10px]">
+                                <div class="p-2 border-r border-[#161616] font-bold">MODÜL_01</div>
+                                <div class="p-2 border-r border-[#161616] text-inkSoft">API v2.8</div>
+                                <div class="p-2 text-right text-[#0047AB] font-bold">AKTİF</div>
+                            </div>
+                            <div class="p-5">
+                                <h4 class="font-sans text-2xl font-bold tracking-tight leading-tight mb-2">
+                                    Kurumsal ödeme altyapısı için <span class="text-[#0047AB]">deterministik</span> mimari.
+                                </h4>
+                                <p class="text-xs text-inkSoft mb-4">
+                                    Saniyede 50.000 işlemi milisaniyelik tutarlılıkla işleyen dağıtık defter motoru.
+                                </p>
+                                <div class="grid grid-cols-2 border-t border-arch pt-3 font-mono text-[11px]">
+                                    <span>GECİKME: <strong>11ms</strong></span>
+                                    <span class="text-right underline">DOKÜMANTASYON ↗</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Aesthetic Direction: Swiss International Typographic Style (Dieter Rams / Linear inspired). Pure white (#FFFFFF) and cool off-white (#F4F5F7) surfaces divided by visible 1px structural grid borders. Strictly left-aligned bold grotesque typography with tight tracking, monospace technical metadata, and Cobalt Blue (#0047AB) as the single functional accent.', 'Swiss Grid promptu kopyalandı')" class="w-full py-3.5 px-6 bg-stone hover:bg-ink hover:text-archival border-t border-ink font-mono text-xs uppercase tracking-wider transition-colors text-left flex justify-between items-center">
+                        <span>Bu Stilin Promptunu Kopyala</span>
+                        <span>[KOPYALA +]</span>
+                    </button>
+                </article>
+
+                <!-- ARKETİP 4: WARM ORGANIC / ZANAAT -->
+                <article class="border border-ink bg-white flex flex-col justify-between">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-arch pb-3 mb-5 font-mono text-xs">
+                            <span class="font-semibold text-vermilion">04 / WARM ORGANIC & ZANAAT</span>
+                            <span class="text-inkSoft">Aesop • Butik Markalar • Sağlık</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Organik Toprak & Zanaat</h3>
+                        <p class="text-xs text-inkSoft mb-6 leading-relaxed">
+                            Kum beji, kil ve adaçayı yeşili tonları; yumuşak serif tipografi ve doğal ritim. Kullanıcıya sakinlik ve samimiyet hissettirir.
+                        </p>
+
+                        <!-- Canlı Mini Önizleme -->
+                        <div class="border border-[#D5CFC4] bg-[#F2EDE4] p-6 text-[#23201C]">
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-[#3D5245] block mb-3">BOTANİK FORMÜLASYON</span>
+                            <h4 class="font-fraunces text-2xl sm:text-3xl font-normal leading-tight mb-3">
+                                Doğal özlerle dengelenen <span class="italic">günlük bakım</span> ritüeli.
+                            </h4>
+                            <p class="text-xs text-[#59534B] leading-relaxed mb-5">
+                                Soğuk sıkım bitkisel yağlar ve saf mineral killerle küçük partiler halinde üretilmiştir.
+                            </p>
+                            <div class="flex items-center gap-3">
+                                <span class="px-4 py-2 bg-[#2D4739] text-[#F2EDE4] text-xs font-medium">Seriyi Keşfet</span>
+                                <span class="text-xs font-mono text-[#59534B]">100ml / Cam Şişe</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Aesthetic Direction: Warm Organic Craft (Aesop inspired). Use warm sand cream (#F2EDE4), soft clay (#E6DFD3), deep espresso text (#23201C), and forest sage green (#2D4739) for primary actions. Pair Fraunces soft serif headings with DM Sans body text. Calm spacing, tactile feel, zero harsh black or neon colors.', 'Warm Organic promptu kopyalandı')" class="w-full py-3.5 px-6 bg-stone hover:bg-ink hover:text-archival border-t border-ink font-mono text-xs uppercase tracking-wider transition-colors text-left flex justify-between items-center">
+                        <span>Bu Stilin Promptunu Kopyala</span>
+                        <span>[KOPYALA +]</span>
+                    </button>
+                </article>
+
+                <!-- ARKETİP 5: OBSIDIAN STUDIO / SİNEMATİK -->
+                <article class="border border-ink bg-white flex flex-col justify-between">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-arch pb-3 mb-5 font-mono text-xs">
+                            <span class="font-semibold text-vermilion">05 / OBSIDIAN STUDIO (DARK)</span>
+                            <span class="text-inkSoft">Leica • Apple Pro • Donanım</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Sinematik Monokrom Karanlık</h3>
+                        <p class="text-xs text-inkSoft mb-6 leading-relaxed">
+                            AI'ın mor-lacivert karanlık modunun aksine; gerçek obsidyen siyahı (<code>#0B0B0C</code>), %10 şeffaf gümüş çizgiler ve sıcak kehribar vurgular kullanır.
+                        </p>
+
+                        <!-- Canlı Mini Önizleme -->
+                        <div class="border border-white/15 bg-[#0B0B0C] p-6 text-[#F4F4F2]">
+                            <div class="flex justify-between items-center mb-4 font-mono text-[10px] text-neutral-400">
+                                <span>OPTİK SERİ M11</span>
+                                <span class="text-[#D4A359]">● TAM KARE SENSÖR</span>
+                            </div>
+                            <h4 class="font-cormorant text-3xl font-normal tracking-tight text-white mb-2">
+                                Karanlıkta bile ödünsüz <span class="italic text-[#D4A359]">mikro kontrast.</span>
+                            </h4>
+                            <p class="text-xs text-neutral-400 leading-relaxed mb-5">
+                                Anodize alüminyum gövde ve el işçiliğiyle kalibre edilmiş saf cam optik elementler.
+                            </p>
+                            <div class="flex items-center gap-3">
+                                <span class="px-4 py-1.5 bg-[#F4F4F2] text-[#0B0B0C] font-mono text-[11px] font-semibold">TEKNİK ÖZELLİKLER</span>
+                                <span class="px-4 py-1.5 border border-white/20 text-neutral-300 font-mono text-[11px]">GALERİ</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Aesthetic Direction: Cinematic Obsidian Monochrome (Leica / Apple Pro inspired). STRICTLY NO PURPLE OR BLUE GLOWS. Use true obsidian black (#0B0B0C) and charcoal (#141416) surfaces separated by 1px hairline borders (rgba(255,255,255,0.12)). Crisp off-white text (#F4F4F2) and warm amber gold (#D4A359) highlights.', 'Obsidian Studio promptu kopyalandı')" class="w-full py-3.5 px-6 bg-stone hover:bg-ink hover:text-archival border-t border-ink font-mono text-xs uppercase tracking-wider transition-colors text-left flex justify-between items-center">
+                        <span>Bu Stilin Promptunu Kopyala</span>
+                        <span>[KOPYALA +]</span>
+                    </button>
+                </article>
+
+                <!-- ARKETİP 6: RETRO TERMINAL / ENDÜSTRİYEL -->
+                <article class="border border-ink bg-white flex flex-col justify-between">
+                    <div class="p-6 sm:p-8">
+                        <div class="flex items-center justify-between border-b border-arch pb-3 mb-5 font-mono text-xs">
+                            <span class="font-semibold text-vermilion">06 / ENDÜSTRİYEL & TERMİNAL</span>
+                            <span class="text-inkSoft">Teenage Engineering • DevTools</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Endüstriyel Donanım Arayüzü</h3>
+                        <p class="text-xs text-inkSoft mb-6 leading-relaxed">
+                            Açık gri teknik zemin (<code>#E8E8E6</code>), sinyal turuncusu (<code>#FF4D00</code>), daktilo/monospace yazı tipleri ve donanım paneli detayları.
+                        </p>
+
+                        <!-- Canlı Mini Önizleme -->
+                        <div class="border border-[#161616] bg-[#EAEAE8] p-6 text-[#161616] font-spacemono">
+                            <div class="flex justify-between items-center border-b border-dashed border-[#161616]/40 pb-2.5 mb-4 text-[10px]">
+                                <span>OP-FIELD // DSP_UNIT</span>
+                                <span class="px-1.5 py-0.5 bg-[#FF4D00] text-white font-bold">REC ●</span>
+                            </div>
+                            <h4 class="text-xl font-bold tracking-tight leading-snug mb-3">
+                                32-BİT KAYIPSIZ SES SENTEZ MOTORU.
+                            </h4>
+                            <p class="font-ibm text-xs text-[#333333] mb-5">
+                                Fiziksel düğme hassasiyetini tarayıcı tabanlı modüler ses işleme hattına taşır.
+                            </p>
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="px-3 py-1.5 bg-[#161616] text-white">KONSOLU AÇ</span>
+                                <span class="text-[#FF4D00] font-bold">48kHz / 24dB</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Aesthetic Direction: Industrial Hardware & Technical Terminal (Teenage Engineering inspired). Use matte light industrial gray (#EAEAE8), deep carbon ink (#161616), dashed technical divider lines, Space Mono headers, IBM Plex Sans body copy, and International Signal Orange (#FF4D00) status indicators.', 'Endüstriyel Terminal promptu kopyalandı')" class="w-full py-3.5 px-6 bg-stone hover:bg-ink hover:text-archival border-t border-ink font-mono text-xs uppercase tracking-wider transition-colors text-left flex justify-between items-center">
+                        <span>Bu Stilin Promptunu Kopyala</span>
+                        <span>[KOPYALA +]</span>
+                    </button>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- BÖLÜM 03: TİPOGRAFİ EŞLEŞMELERİ -->
+        <section id="tipografi" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-5">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 03 / TİPOGRAFİ</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">Canlı Font Eşleşmeleri</h2>
+                </div>
+                <div class="lg:col-span-7 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        Başlık ve paragraf için aynı fontu kullanmak arayüzü düzleştirir. Aşağıdaki 5 eşleşme gerçek Google Fonts kütüphanesinden yüklenmiştir; harf aralığı (tracking) ve satır yüksekliği (leading) kurallarıyla birlikte kopyalayabilirsin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-t border-ink divide-y divide-[#DCD7CD]" id="typography-list">
+                <!-- JS ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- BÖLÜM 04: RENK PSİKOLOJİSİ & 8 PROFESYONEL PALET -->
+        <section id="renkler" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-5">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 04 / RENK SİSTEMİ</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">8 Anti-AI Renk Paleti</h2>
+                </div>
+                <div class="lg:col-span-7 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        <strong>60-30-10 Kuralı:</strong> Sayfanın %60'ı ana zemin rengi, %30'u ikincil yüzey/kart rengi ve yalnızca %10'u vurgu rengi olmalıdır. Herhangi bir renk kutusuna tıklayarak HEX kodunu panoya kopyalayabilirsin.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="palettes-grid">
+                <!-- JS ile render edilecek -->
+            </div>
+        </section>
+
+        <!-- BÖLÜM 05: YERLEŞİM (LAYOUT) & GRİD MİMARİSİ -->
+        <section id="yerlesim" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-5">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 05 / SAYFA MİMARİSİ</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">Klasik 3'lü Kart Yerine Grid Sistemleri</h2>
+                </div>
+                <div class="lg:col-span-7 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        Yapay zekaya "özellikler bölümü yap" dediğinde istisnasız yan yana 3 eşit kutu çizer. Sayfaya mimari ritim kazandırmak için aşağıdaki 4 yerleşim kalıbından birini talep et.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Grid 1: Asimetrik Bento -->
+                <div class="border border-ink bg-white p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-3">
+                            <span class="font-bold">01. ASİMETRİK BENTO GRID</span>
+                            <span class="text-vermilion">8+4 / 5+7 Oranı</span>
+                        </div>
+                        <p class="text-xs text-inkSoft mb-5">Ana özelliği büyük bir kutuda (8 kolon), ikincil metrikleri dar kutularda (4 kolon) sunarak görsel hiyerarşi kurar.</p>
+                        <div class="grid grid-cols-12 gap-2 h-40 bg-stone p-3 border border-arch mb-5 font-mono text-[10px]">
+                            <div class="col-span-8 bg-ink text-archival p-3 flex flex-col justify-between">
+                                <span>COL-SPAN-8</span>
+                                <span>Ana İnteraktif Alan</span>
+                            </div>
+                            <div class="col-span-4 bg-white border border-arch p-3 flex flex-col justify-between">
+                                <span>COL-4</span>
+                                <span>Metrik</span>
+                            </div>
+                            <div class="col-span-5 bg-white border border-arch p-3 flex items-end">COL-SPAN-5</div>
+                            <div class="col-span-7 bg-vermilion/15 border border-vermilion p-3 flex items-end text-vermilion font-bold">COL-SPAN-7</div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Layout Rule: Use an Asymmetric 12-column Bento Grid (mixing col-span-8 + col-span-4 on row 1, and col-span-5 + col-span-7 on row 2) with 16px gaps instead of 3 equal-width cards.', 'Bento Grid kuralı kopyalandı')" class="font-mono text-xs text-ink hover:text-vermilion underline underline-offset-4 text-left">
+                        → Bento Grid Prompt Kuralını Kopyala
+                    </button>
+                </div>
+
+                <!-- Grid 2: Sticky Split -->
+                <div class="border border-ink bg-white p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-3">
+                            <span class="font-bold">02. STICKY SPLIT (SABİT SOL + AKAN SAĞ)</span>
+                            <span class="text-vermilion">40% / 60% Oranı</span>
+                        </div>
+                        <p class="text-xs text-inkSoft mb-5">Sol sütun ekranda sabit kalırken sağ sütun aşağı doğru kayar. Süreç anlatımları ve hizmet listeleri için idealdir.</p>
+                        <div class="grid grid-cols-12 gap-3 h-40 bg-stone p-3 border border-arch mb-5 font-mono text-[10px]">
+                            <div class="col-span-5 bg-white border border-ink p-3 flex flex-col justify-between">
+                                <span class="text-vermilion font-bold">STICKY TOP-24</span>
+                                <span>Sabit Başlık & Özet</span>
+                            </div>
+                            <div class="col-span-7 space-y-2 overflow-hidden">
+                                <div class="bg-white border border-arch p-2">01. Mimari Analiz</div>
+                                <div class="bg-white border border-arch p-2">02. Veri Modelleme</div>
+                                <div class="bg-white border border-arch p-2 opacity-60">03. Canlı Yayın</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Layout Rule: Use a Sticky Split Layout (5 columns sticky left header, 7 columns scrolling right content list divided by 1px hairline borders).', 'Sticky Split kuralı kopyalandı')" class="font-mono text-xs text-ink hover:text-vermilion underline underline-offset-4 text-left">
+                        → Sticky Split Prompt Kuralını Kopyala
+                    </button>
+                </div>
+
+                <!-- Grid 3: Editorial Gazete Sütunları -->
+                <div class="border border-ink bg-white p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-3">
+                            <span class="font-bold">03. HAIRLINE GAZETE SÜTUNLARI</span>
+                            <span class="text-vermilion">1px Dikey Ayırıcı</span>
+                        </div>
+                        <p class="text-xs text-inkSoft mb-5">Kutular ve gölgeler yerine sütunları birbirinden ince dikey çizgilerle (<code>divide-x</code>) ayırır. Son derece temiz ve editoryal görünür.</p>
+                        <div class="grid grid-cols-3 divide-x divide-[#161616] h-40 bg-archival border border-ink mb-5 font-mono text-[10px]">
+                            <div class="p-3 flex flex-col justify-between"><span>SÜTUN A</span><span>Sıfır Kart Gölgesi</span></div>
+                            <div class="p-3 flex flex-col justify-between"><span>SÜTUN B</span><span>İnce Dikey Çizgi</span></div>
+                            <div class="p-3 flex flex-col justify-between"><span>SÜTUN C</span><span>Tipografik Odak</span></div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Layout Rule: Do NOT wrap features in rounded cards with shadows. Use a flush 3-column architectural table/grid separated strictly by 1px solid vertical and horizontal hairline dividers.', 'Gazete Sütunu kuralı kopyalandı')" class="font-mono text-xs text-ink hover:text-vermilion underline underline-offset-4 text-left">
+                        → Hairline Sütun Prompt Kuralını Kopyala
+                    </button>
+                </div>
+
+                <!-- Grid 4: Tipografik Asimetrik Hero -->
+                <div class="border border-ink bg-white p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between font-mono text-xs mb-3">
+                            <span class="font-bold">04. TİPOGRAFİK ASİMETRİK HERO</span>
+                            <span class="text-vermilion">Sola Yaslı Mimari</span>
+                        </div>
+                        <p class="text-xs text-inkSoft mb-5">Ortalanmış klasik başlık yerine; üstte devasa sola yaslı bir başlık, sağ alt köşede ise dikey çizgiyle ayrılmış açıklama ve aksiyon butonu.</p>
+                        <div class="h-40 bg-stone p-3 border border-arch mb-5 flex flex-col justify-between font-mono text-[10px]">
+                            <div class="w-4/5 h-10 bg-ink text-archival p-2 flex items-center">DEVASA SOLA YASLI BAŞLIK</div>
+                            <div class="grid grid-cols-12">
+                                <div class="col-span-6"></div>
+                                <div class="col-span-6 border-l border-ink pl-2 bg-white p-2">Sağ alt köşe özet & CTA</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="copyText('Hero Layout Rule: Avoid a centered hero section. Place an oversized left-aligned display headline spanning 8 columns at the top, and anchor the supporting paragraph and primary CTA in a right-aligned 4-column block separated by a 1px vertical border.', 'Asimetrik Hero kuralı kopyalandı')" class="font-mono text-xs text-ink hover:text-vermilion underline underline-offset-4 text-left">
+                        → Asimetrik Hero Prompt Kuralını Kopyala
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BÖLÜM 06: MİKRO-ETKİLEŞİM, DOKU & KENAR DURUMLAR LABORATUVARI -->
+        <section id="laboratuvar" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-5">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 06 / İNCE İŞÇİLİK</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">Canlı Mikro-Etkileşim Laboratuvarı</h2>
+                </div>
+                <div class="lg:col-span-7 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        Bir web sitesinin "amatör" değil "mühendislik ürünü" gibi hissettirmesi milisaniyelik tepkilere ve yüzey dokularına bağlıdır. Aşağıdaki 4 kontrolü canlı test et.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Lab 1: Fizik Tabanlı Butonlar -->
+                <div class="border border-ink bg-white p-6">
+                    <span class="font-mono text-[11px] text-vermilion block mb-1">DENEY 01 / BUTON FİZİĞİ</span>
+                    <h3 class="font-bold text-base mb-2">Taktil & Süpürme Efektli Butonlar</h3>
+                    <p class="text-xs text-inkSoft mb-6">Sadece opaklığı değişen sıradan butonlar yerine, yönlü renk dolumu yapan veya basılma hissi (<code>active:translate</code>) veren butonlar kullan.</p>
+                    <div class="p-6 bg-stone border border-arch flex flex-wrap items-center gap-4">
+                        <button class="btn-sweep px-5 py-3 bg-ink text-archival font-mono text-xs uppercase tracking-wider">
+                            Yönlü Dolum (Hover)
+                        </button>
+                        <button class="brutal-btn px-5 py-3 bg-archival text-ink border border-ink font-mono text-xs uppercase font-bold">
+                            Mekanik Basış (Tıkla)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lab 2: Kâğıt Dokusu (SVG Grain) Kontrolü -->
+                <div class="border border-ink bg-white p-6">
+                    <span class="font-mono text-[11px] text-vermilion block mb-1">DENEY 02 / YÜZEY DOKUSU</span>
+                    <h3 class="font-bold text-base mb-2">Canlı SVG Paper Grain Ayarı</h3>
+                    <p class="text-xs text-inkSoft mb-6">Düz dijital renklerin plastik görüntüsünü kırmak için sayfa genelinde çok hafif kum dokusu kullanılır. Kaydırıcıyla şu anki sayfanın dokusunu test et:</p>
+                    <div class="p-6 bg-stone border border-arch space-y-3">
+                        <div class="flex justify-between font-mono text-xs">
+                            <span>Doku Yoğunluğu (Opacity)</span>
+                            <span id="grain-value" class="font-bold text-vermilion">%4.5 (İdeal)</span>
+                        </div>
+                        <input type="range" min="0" max="15" step="0.5" value="4.5" id="grain-slider" class="w-full accent-[#C84B31] cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Lab 3: Skeleton & Empty State -->
+                <div class="border border-ink bg-white p-6">
+                    <span class="font-mono text-[11px] text-vermilion block mb-1">DENEY 03 / KENAR DURUMLAR</span>
+                    <h3 class="font-bold text-base mb-2">Yükleme İskeleti (Skeleton) & Boş Durum</h3>
+                    <p class="text-xs text-inkSoft mb-4">Veritabanı sorgusu beklenirken ekrana düz "Yükleniyor..." yazmak yerine içeriğin mimari iskeletini göster.</p>
+                    <div class="p-4 bg-stone border border-arch">
+                        <div id="state-preview" class="bg-white border border-arch p-4 mb-3">
+                            <!-- JS ile değişecek -->
+                        </div>
+                        <div class="flex gap-2 font-mono text-[11px]">
+                            <button onclick="setLabState('loading')" class="px-3 py-1.5 bg-ink text-archival">1. Yükleniyor</button>
+                            <button onclick="setLabState('loaded')" class="px-3 py-1.5 border border-ink bg-white">2. Veri Geldi</button>
+                            <button onclick="setLabState('empty')" class="px-3 py-1.5 border border-ink bg-white">3. Boş Sonuç</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lab 4: Glassmorphism vs Hairline Border -->
+                <div class="border border-ink bg-white p-6">
+                    <span class="font-mono text-[11px] text-vermilion block mb-1">DENEY 04 / SINIR MİMARİSİ</span>
+                    <h3 class="font-bold text-base mb-2">Neden 1px Hairline Çizgi?</h3>
+                    <p class="text-xs text-inkSoft mb-4">Bulanık cam efektleri (Glassmorphism) çoğu zaman içeriğin okunabilirliğini bozar ve AI şablonu hissi verir. Net çizgiler ise hiyerarşiyi keskinleştirir.</p>
+                    <div class="grid grid-cols-2 gap-3 font-mono text-xs">
+                        <div class="p-4 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-md rounded-2xl border border-white/40 shadow-lg">
+                            <span class="text-[10px] text-purple-800 block mb-1">❌ AI CAM KARTI</span>
+                            <p class="font-sans text-xs text-neutral-700">Bulanık, yuvarlak ve her sitede aynı.</p>
+                        </div>
+                        <div class="p-4 bg-archival border border-ink">
+                            <span class="text-[10px] text-vermilion block mb-1">✓ MİMARİ SINIR</span>
+                            <p class="font-sans text-xs text-ink">Keskin, okunaklı ve yüksek zanaat hissi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BÖLÜM 07: İNTERAKTİF SÜPER PROMPT STÜDYOSU -->
+        <section id="prompt-studyosu" class="py-16 lg:py-24 scroll-mt-14">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                <div class="lg:col-span-5">
+                    <span class="font-mono text-xs text-vermilion uppercase tracking-widest block mb-2">BÖLÜM 07 / PROMPT MÜHENDİSLİĞİ</span>
+                    <h2 class="font-editorial text-4xl sm:text-5xl leading-none text-ink">Canlı Süper Prompt Oluşturucu</h2>
+                </div>
+                <div class="lg:col-span-7 flex items-end">
+                    <p class="text-sm sm:text-base text-inkSoft max-w-2xl leading-relaxed">
+                        Aşağıdaki 5 parametreyi projene göre seç; sistem senin için tüm yapay zeka klişelerini yasaklayan, tipografi, HEX renk kodları ve yerleşim kurallarını içeren tek parça uzman promptunu otomatik üretsin.
+                    </p>
+                </div>
+            </div>
+
+            <!-- İnteraktif Oluşturucu Paneli -->
+            <div class="border border-ink bg-white grid grid-cols-1 lg:grid-cols-12">
+                <!-- Sol Seçim Kontrolleri -->
+                <div class="lg:col-span-5 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-ink space-y-5 bg-stone/40">
+                    <div>
+                        <label class="block font-mono text-[11px] uppercase tracking-wider font-bold mb-2">1. Proje Türü / Konusu</label>
+                        <input type="text" id="builder-topic" value="B2B Finansal Analiz ve Nakit Akışı Platformu" class="w-full px-3.5 py-2.5 bg-white border border-ink font-sans text-sm focus:outline-none focus:border-vermilion">
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-[11px] uppercase tracking-wider font-bold mb-2">2. Tasarım Arketipi</label>
+                        <select id="builder-archetype" class="w-full px-3.5 py-2.5 bg-white border border-ink font-sans text-sm focus:outline-none focus:border-vermilion">
+                            <option value="editorial">01. Editorial & Dergi (Kinfolk / NYT)</option>
+                            <option value="swiss" selected>02. Swiss Grid & Teknik (Linear / Dieter Rams)</option>
+                            <option value="brutalist">03. Neo-Brutalist (Gumroad / Sert Çizgiler)</option>
+                            <option value="organic">04. Warm Organic & Zanaat (Aesop)</option>
+                            <option value="obsidian">05. Obsidian Studio (Sinematik Karanlık)</option>
+                            <option value="industrial">06. Endüstriyel Donanım & Terminal</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-[11px] uppercase tracking-wider font-bold mb-2">3. Tipografi İkilisi</label>
+                        <select id="builder-typo" class="w-full px-3.5 py-2.5 bg-white border border-ink font-sans text-sm focus:outline-none focus:border-vermilion">
+                            <option value="Instrument Serif + Plus Jakarta Sans">Instrument Serif + Plus Jakarta Sans (Editoryal)</option>
+                            <option value="Space Grotesk + IBM Plex Sans" selected>Space Grotesk + IBM Plex Sans (Modern Teknik)</option>
+                            <option value="Syne + DM Sans">Syne + DM Sans (Avangart Ajans)</option>
+                            <option value="Fraunces + Plus Jakarta Sans">Fraunces + Plus Jakarta Sans (Sıcak Marka)</option>
+                            <option value="Cormorant Garamond + Outfit">Cormorant Garamond + Outfit (Lüks & Mimari)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-[11px] uppercase tracking-wider font-bold mb-2">4. Renk Paleti</label>
+                        <select id="builder-palette" class="w-full px-3.5 py-2.5 bg-white border border-ink font-sans text-sm focus:outline-none focus:border-vermilion">
+                            <option value="Arşiv Kâğıdı (#F5F3EE), Taş (#EAE6DD), Mürekkep (#161616), Terracotta Vurgu (#C84B31)">Arşiv Kâğıdı & Terracotta</option>
+                            <option value="Saf Beyaz (#FFFFFF), Açık Gri (#F4F5F7), Kömür (#111111), İsviçre Kobaltı (#0047AB)" selected>İsviçre Alabaster & Kobalt</option>
+                            <option value="Obsidyen Siyah (#0B0B0C), Karbon (#141416), Kırık Beyaz (#F4F4F2), Kehribar Altın (#D4A359)">Obsidyen & Sıcak Kehribar</option>
+                            <option value="Kuzey Kremi (#F4F5F0), Adaçayı Yüzey (#E4E8DF), Orman Koyu (#1A261D), Yosun (#2D4739)">Kuzey Ormanı & Kemik Rengi</option>
+                            <option value="Brütalist Krem (#FFFDF5), Sarı Yüzey (#F4D03F), Tam Siyah (#161616), Mercan (#E05A47)">Brütalist Kükürt & Kömür</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block font-mono text-[11px] uppercase tracking-wider font-bold mb-2">5. Sayfa Yerleşim Mimarisi</label>
+                        <select id="builder-layout" class="w-full px-3.5 py-2.5 bg-white border border-ink font-sans text-sm focus:outline-none focus:border-vermilion">
+                            <option value="Asymmetric 12-column Bento Grid (mixing col-span-8 + col-span-4) with 1px structural hairline dividers">Asimetrik Bento Grid (8+4 Oranlı)</option>
+                            <option value="Sticky Split Layout (40% sticky left narrative column + 60% scrolling right feature flow)" selected>Sticky Split (Sabit Sol + Akan Sağ)</option>
+                            <option value="Flush Architectural Newspaper Columns separated by 1px vertical rules (zero floating cards)">Hairline Gazete Sütunları (Kartsız)</option>
+                            <option value="Oversized Left-Aligned Typographic Hero + 2-column structured specification matrix">Sola Yaslı Tipografik Hero + Teknik Matris</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sağ Canlı Üretilen Prompt Çıktısı -->
+                <div class="lg:col-span-7 bg-[#161616] text-[#F5F3EE] p-6 sm:p-8 flex flex-col justify-between">
+                    <div>
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-white/15">
+                            <div class="font-mono text-xs">
+                                <span class="text-vermilion font-bold">● CANLI ÇIKTI</span>
+                                <span class="text-neutral-400 ml-2">Cursor / Claude / v0 Uyumlu</span>
+                            </div>
+                            <button onclick="copyGeneratedPrompt()" class="px-4 py-2 bg-vermilion hover:bg-vermilion/90 text-white font-mono text-xs uppercase tracking-wider font-semibold transition-colors">
+                                [TÜM PROMPTU KOPYALA]
+                            </button>
+                        </div>
+                        <pre id="generated-prompt-output" class="font-mono text-xs sm:text-[13px] leading-relaxed text-neutral-200 whitespace-pre-wrap"></pre>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-white/10 font-mono text-[11px] text-neutral-400 flex justify-between">
+                        <span>Anti-AI Filtresi: AKTİF</span>
+                        <span>Dil: Teknik İngilizce (En Yüksek Model Uyumu)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- EDİTORYAL FOOTER -->
+    <footer class="border-t border-ink bg-stone">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-8 py-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+                <p class="font-editorial text-3xl text-ink mb-1">ATÖLYE — Dijital Tasarım & Mimari Rehberi</p>
+                <p class="font-mono text-xs text-inkSoft">Vibecoding süreçlerinde özgün, zanaat odaklı ve klişelerden uzak arayüzler üretmek için hazırlanmıştır.</p>
+            </div>
+            <div class="flex items-center gap-4 font-mono text-xs">
+                <a href="#" class="underline underline-offset-4 hover:text-vermilion">Başa Dön ↑</a>
+                <span>•</span>
+                <button onclick="copyText(window.location.href, 'Rehber linki kopyalandı')" class="px-4 py-2 border border-ink bg-archival hover:bg-ink hover:text-archival transition-colors">
+                    Arkadaşına Gönder (Link Kopyala)
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. TİPOGRAFİ EŞLEŞMELERİ VERİSİ VE RENDER
+        const typographyPairings = [
+            {
+                id: "01",
+                role: "Modern Editoryal & Yayın",
+                pair: "Instrument Serif + Plus Jakarta Sans",
+                headClass: "font-editorial text-4xl sm:text-5xl",
+                bodyClass: "font-sans text-sm",
+                specs: "Başlık Tracking: -0.02em | Line-height: 1.02 | Gövde: 16px / 1.6",
+                sampleHead: "Mimaride sadelik, fazlalıkların sessizce çıkarılmasıdır.",
+                sampleBody: "Yüksek kontrastlı tırnaklı başlıklar okuyucuda editoryal bir güven uyandırırken, geometrik gövde fontu uzun teknik metinlerde okuma hızını korur.",
+                promptRule: "Typography System: Use 'Instrument Serif' (regular & italic, tracking -0.02em, line-height 1.02) for display headings, paired with 'Plus Jakarta Sans' for body copy and 'JetBrains Mono' for metadata labels."
+            },
+            {
+                id: "02",
+                role: "Avangart Stüdyo & Yaratıcı Ajans",
+                pair: "Syne + Space Grotesk",
+                headClass: "font-syne text-3xl sm:text-4xl font-extrabold uppercase tracking-tight",
+                bodyClass: "font-space text-sm",
+                specs: "Başlık Weight: 800 | Tracking: -0.03em | Gövde: Space Grotesk 500",
+                sampleHead: "DİJİTAL ÜRÜNLERDE YENİ BİR GÖRSEL DİL.",
+                sampleBody: "Geniş harf anatomisine sahip Syne, açılış ekranlarında cesur ve akılda kalıcı bir imza bırakır. Alt metinlerde daha dar gövdeli Space Grotesk ile dengelenmelidir.",
+                promptRule: "Typography System: Use 'Syne' (weight 800, tight tracking -0.03em) strictly for hero headlines and major section titles, paired with 'Space Grotesk' for readable UI copy."
+            },
+            {
+                id: "03",
+                role: "Sıcak Marka, Sağlık & Yaşam",
+                pair: "Fraunces + DM Sans",
+                headClass: "font-fraunces text-3xl sm:text-4xl font-normal",
+                bodyClass: "font-dm text-sm",
+                specs: "Başlık Stil: Soft Serif + Italic Vurgu | Gövde: DM Sans 400/500",
+                sampleHead: "Zanaatkârlık ve doğallıkla şekillenen deneyim.",
+                sampleBody: "Yumuşak tırnak uçlarına sahip Fraunces, soğuk kurumsal şablonların aksine kullanıcıyla insani ve samimi bir bağ kurar.",
+                promptRule: "Typography System: Use 'Fraunces' (warm soft serif with italic emphasis words) for headings, paired with 'DM Sans' for clean, approachable paragraphs and buttons."
+            },
+            {
+                id: "04",
+                role: "Geliştirici Aracı & Mühendislik",
+                pair: "Space Mono + IBM Plex Sans",
+                headClass: "font-spacemono text-2xl sm:text-3xl font-bold tracking-tight",
+                bodyClass: "font-ibm text-sm",
+                specs: "Başlık: Sabit Genişlikli (Monospace) | Gövde: IBM Plex Sans",
+                sampleHead: "SIFIR YAPILANDIRMA İLE DAĞITIM ALTYAPISI.",
+                sampleBody: "Sabit genişlikli başlıklar teknik ciddiyet ve mühendislik hassasiyeti verirken, IBM Plex Sans kurumsal okunabilirlik standardını sağlar.",
+                promptRule: "Typography System: Use 'Space Mono' (bold) for technical section headings, data counters, and badges, paired with 'IBM Plex Sans' for clear documentation and UI copy."
+            },
+            {
+                id: "05",
+                role: "Lüks E-Ticaret, Moda & Mimari",
+                pair: "Cormorant Garamond + Outfit",
+                headClass: "font-cormorant text-4xl sm:text-5xl font-semibold",
+                bodyClass: "font-outfit text-sm",
+                specs: "Başlık Weight: 600 + Italic | Gövde: Outfit 400 (Hafif Geometrik)",
+                sampleHead: "Zamana direnen formlar ve kusursuz oranlar.",
+                sampleBody: "Klasik kitap tipografisinden gelen Cormorant Garamond, modern ve hafif Outfit fontuyla birleştiğinde yüksek segment bir marka algısı yaratır.",
+                promptRule: "Typography System: Use 'Cormorant Garamond' (weight 600 with italic accents) for luxury editorial titles, paired with 'Outfit' for minimalist navigation and product specs."
+            }
+        ];
+
+        const typoList = document.getElementById('typography-list');
+        typographyPairings.forEach(item => {
+            const row = document.createElement('div');
+            row.className = "py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center";
+            row.innerHTML = `
+                <div class="lg:col-span-4 space-y-2">
+                    <span class="font-mono text-xs text-vermilion font-bold">${item.id} / ${item.role.toUpperCase()}</span>
+                    <h3 class="font-bold text-base text-ink">${item.pair}</h3>
+                    <p class="font-mono text-[11px] text-inkSoft">${item.specs}</p>
+                    <button onclick="copyText('${item.promptRule}', '${item.pair} kuralı kopyalandı')" class="mt-2 inline-block px-3 py-1.5 border border-ink bg-stone hover:bg-ink hover:text-archival font-mono text-[11px] transition-colors">
+                        [Font Promptunu Kopyala]
+                    </button>
+                </div>
+                <div class="lg:col-span-8 bg-white border border-arch p-6">
+                    <p class="${item.headClass} text-ink leading-tight mb-3">${item.sampleHead}</p>
+                    <p class="${item.bodyClass} text-inkSoft leading-relaxed max-w-2xl">${item.sampleBody}</p>
+                </div>
+            `;
+            typoList.appendChild(row);
+        });
+
+        // 2. RENK PALETLERİ VERİSİ VE RENDER
+        const palettesData = [
+            {
+                name: "01. Arşiv Kâğıdı & Terracotta",
+                desc: "Editoryal yayınlar, mimari portfolyolar ve kültür-sanat projeleri.",
+                swatches: [
+                    { hex: "#F5F3EE", role: "Zemin %60" },
+                    { hex: "#EAE6DD", role: "Yüzey %30" },
+                    { hex: "#161616", role: "Mürekkep" },
+                    { hex: "#4A4843", role: "İkincil" },
+                    { hex: "#C84B31", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "02. İsviçre Alabaster & Kobalt",
+                desc: "B2B SaaS, fintech, kurumsal yazılım ve veri odaklı platformlar.",
+                swatches: [
+                    { hex: "#FFFFFF", role: "Zemin %60" },
+                    { hex: "#F4F5F7", role: "Yüzey %30" },
+                    { hex: "#111111", role: "Mürekkep" },
+                    { hex: "#52525B", role: "İkincil" },
+                    { hex: "#0047AB", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "03. Obsidyen & Sıcak Kehribar",
+                desc: "Mor-lacivert klişesi olmayan gerçek karanlık mod; AI araçları ve donanım.",
+                swatches: [
+                    { hex: "#0B0B0C", role: "Zemin %60" },
+                    { hex: "#141416", role: "Yüzey %30" },
+                    { hex: "#F4F4F2", role: "Metin" },
+                    { hex: "#8E8E93", role: "İkincil" },
+                    { hex: "#D4A359", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "04. Kuzey Ormanı & Kemik Rengi",
+                desc: "Sürdürülebilir markalar, sağlık uygulamaları ve doğal yaşam ürünleri.",
+                swatches: [
+                    { hex: "#F4F5F0", role: "Zemin %60" },
+                    { hex: "#E4E8DF", role: "Yüzey %30" },
+                    { hex: "#1A261D", role: "Mürekkep" },
+                    { hex: "#4E5D52", role: "İkincil" },
+                    { hex: "#2D4739", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "05. Brütalist Kükürt & Kömür",
+                desc: "Genç girişimler, tasarım araçları ve dikkat çekici kişisel projeler.",
+                swatches: [
+                    { hex: "#FFFDF5", role: "Zemin %60" },
+                    { hex: "#F4D03F", role: "Yüzey %30" },
+                    { hex: "#161616", role: "Çizgi/Metin" },
+                    { hex: "#3D3D3D", role: "İkincil" },
+                    { hex: "#E05A47", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "06. Koyu Espresso & Adaçayı",
+                desc: "Butik e-ticaret, kahve/gastronomi markaları ve zanaat atölyeleri.",
+                swatches: [
+                    { hex: "#F2EDE4", role: "Zemin %60" },
+                    { hex: "#E6DFD3", role: "Yüzey %30" },
+                    { hex: "#23201C", role: "Mürekkep" },
+                    { hex: "#59534B", role: "İkincil" },
+                    { hex: "#4A6B53", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "07. Endüstriyel Beton & Sinyal Turuncusu",
+                desc: "Geliştirici araçları, API dokümantasyonları ve teknik paneller.",
+                swatches: [
+                    { hex: "#EAEAE8", role: "Zemin %60" },
+                    { hex: "#DCDCD9", role: "Yüzey %30" },
+                    { hex: "#161616", role: "Mürekkep" },
+                    { hex: "#4A4A48", role: "İkincil" },
+                    { hex: "#FF4D00", role: "Vurgu %10" }
+                ]
+            },
+            {
+                name: "08. Derin Bordo & İpek Kâğıdı",
+                desc: "Hukuk büroları, yatırım fonları, danışmanlık ve klasik prestij.",
+                swatches: [
+                    { hex: "#FAF7F5", role: "Zemin %60" },
+                    { hex: "#EFE9E6", role: "Yüzey %30" },
+                    { hex: "#1F1718", role: "Mürekkep" },
+                    { hex: "#5C4F51", role: "İkincil" },
+                    { hex: "#7A1F31", role: "Vurgu %10" }
+                ]
+            }
+        ];
+
+        const palettesGrid = document.getElementById('palettes-grid');
+        palettesData.forEach(p => {
+            const card = document.createElement('div');
+            card.className = "border border-ink bg-white p-5 flex flex-col justify-between";
+            const swatchButtons = p.swatches.map(s => `
+                <button onclick="copyText('${s.hex}', '${s.hex} panoya kopyalandı')" class="group text-left focus:outline-none">
+                    <div class="h-14 border border-black/15 mb-1.5 transition-transform group-hover:-translate-y-0.5" style="background-color: ${s.hex};"></div>
+                    <div class="font-mono text-[11px] font-bold text-ink group-hover:text-vermilion">${s.hex}</div>
+                    <div class="font-mono text-[9px] text-inkSoft">${s.role}</div>
+                </button>
+            `).join('');
+
+            const ruleText = `Color System (${p.name}): Main Background ${p.swatches[0].hex}, Secondary Surface ${p.swatches[1].hex}, Primary Ink ${p.swatches[2].hex}, Muted Text ${p.swatches[3].hex}, Single Accent ${p.swatches[4].hex}. Strictly avoid purple/blue AI gradients.`;
+
+            card.innerHTML = `
+                <div>
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <h3 class="font-bold text-sm text-ink">${p.name}</h3>
+                    </div>
+                    <p class="text-xs text-inkSoft mb-4">${p.desc}</p>
+                    <div class="grid grid-cols-5 gap-2 mb-5">
+                        ${swatchButtons}
+                    </div>
+                </div>
+                <button onclick="copyText('${ruleText}', '${p.name} kuralı kopyalandı')" class="w-full py-2 border border-arch bg-stone hover:bg-ink hover:text-archival font-mono text-[11px] uppercase tracking-wider transition-colors">
+                    Palet Kuralını Kopyala
+                </button>
+            `;
+            palettesGrid.appendChild(card);
+        });
+
+        // 3. LABORATUVAR KONTROLLERİ (GRAIN SLIDER & EDGE STATES)
+        const grainSlider = document.getElementById('grain-slider');
+        const grainValue = document.getElementById('grain-value');
+        grainSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            document.documentElement.style.setProperty('--noise-opacity', val / 100);
+            grainValue.textContent = `%${val}${val == 4.5 ? ' (İdeal)' : ''}`;
+        });
+
+        function setLabState(state) {
+            const box = document.getElementById('state-preview');
+            if (state === 'loading') {
+                box.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-stone animate-pulse"></div>
+                        <div class="flex-1 space-y-2">
+                            <div class="h-2.5 bg-stone w-2/3 animate-pulse"></div>
+                            <div class="h-2 bg-stone w-1/3 animate-pulse"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (state === 'loaded') {
+                box.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 bg-forest text-archival font-mono text-xs flex items-center justify-center font-bold">MK</div>
+                            <div>
+                                <div class="text-xs font-bold text-ink">Mert Karahan</div>
+                                <div class="font-mono text-[10px] text-inkSoft">Kurumsal Plan • Son işlem 2dk önce</div>
+                            </div>
+                        </div>
+                        <span class="font-mono text-[10px] px-2 py-0.5 bg-forest/15 text-forest font-bold">AKTİF</span>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="text-center py-2">
+                        <p class="font-mono text-xs font-bold text-ink mb-1">Henüz kayıt bulunamadı</p>
+                        <p class="text-[11px] text-inkSoft">Filtreleri temizleyin veya yeni bir kayıt oluşturun.</p>
+                    </div>
+                `;
+            }
+        }
+        setLabState('loading');
+
+        // 4. CANLI SÜPER PROMPT OLUŞTURUCU
+        const archetypeDescriptions = {
+            editorial: "High-end Editorial Magazine style (Kinfolk / NYT inspired) with hairline 1px borders, generous negative space, and literary pacing.",
+            swiss: "Swiss International Typographic Style (Dieter Rams / Linear inspired) with visible 1px structural grid dividers, mathematical alignment, and zero decorative clutter.",
+            brutalist: "Modern Neo-Brutalist style (Gumroad inspired) with crisp 2px solid borders, hard offset drop shadows (4px 4px 0px), and high-contrast surfaces.",
+            organic: "Warm Organic Craft aesthetic (Aesop inspired) with natural tactile surfaces, calm editorial rhythm, and understated elegance.",
+            obsidian: "Cinematic Obsidian Monochrome (Leica / Apple Pro inspired) using true obsidian black surfaces, 1px subtle silver hairline borders, and warm amber highlights—ZERO purple or blue neon glows.",
+            industrial: "Industrial Hardware & Technical Terminal aesthetic (Teenage Engineering inspired) with dashed technical dividers, monospace telemetry labels, and high-precision controls."
+        };
+
+        function updateGeneratedPrompt() {
+            const topic = document.getElementById('builder-topic').value.trim() || "[PROJE KONUSU]";
+            const archKey = document.getElementById('builder-archetype').value;
+            const typo = document.getElementById('builder-typo').value;
+            const palette = document.getElementById('builder-palette').value;
+            const layout = document.getElementById('builder-layout').value;
+
+            const promptText = `Act as a Principal Design Director & Senior Frontend Architect. Build a complete, production-grade web application/landing page for: "${topic}".
+
+1. ANTI-AI & CRAFT MANDATES:
+- STRICTLY AVOID generic AI clichés: NO purple/blue neon gradients, NO default Inter-only typography, NO cheesy stock emojis (🚀, ✨, 💡), and NO repetitive 3-column identical rounded cards.
+- Build real, domain-authentic Turkish copywriting and realistic data metrics.
+
+2. AESTHETIC ARCHETYPE:
+- ${archetypeDescriptions[archKey]}
+
+3. TYPOGRAPHY SYSTEM:
+- Load and pair: ${typo}, plus 'JetBrains Mono' for technical badges, numbers, and metadata.
+- Apply tight negative letter-spacing (-0.02em to -0.03em) on large display headings and clear typographic hierarchy.
+
+4. COLOR ARCHITECTURE (60-30-10 RULE):
+- Palette: ${palette}.
+- Maintain high contrast accessibility and rely on 1px structural borders rather than heavy blurry drop shadows.
+
+5. LAYOUT & COMPONENT ARCHITECTURE:
+- Structure: ${layout}.
+- Include interactive states: tactile button transitions, responsive mobile navigation, and realistic loading/empty states.`;
+
+            document.getElementById('generated-prompt-output').textContent = promptText;
+        }
+
+        ['builder-topic', 'builder-archetype', 'builder-typo', 'builder-palette', 'builder-layout'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateGeneratedPrompt);
+            document.getElementById(id).addEventListener('change', updateGeneratedPrompt);
+        });
+        updateGeneratedPrompt();
+
+        function copyGeneratedPrompt() {
+            const text = document.getElementById('generated-prompt-output').textContent;
+            copyText(text, 'Özel Süper Prompt panoya kopyalandı!');
+        }
+
+        // 5. EVRENSEL PANOYA KOPYALAMA & TOAST
+        function copyText(text, customMessage = 'Panoya kopyalandı') {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(customMessage);
+            } catch (e) {
+                showToast('Kopyalama başarısız oldu');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        let toastTimer;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 2500);
+        }
+
+        // 6. SCROLL SPY (AKTİF BÖLÜM İŞARETLEYİCİ)
+        const sections = document.querySelectorAll('section[id]');
+        const tocLinks = document.querySelectorAll('.toc-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 140) {
+                    current = sec.getAttribute('id');
+                }
+            });
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
